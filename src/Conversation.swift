@@ -144,6 +144,13 @@ public final class Conversation: @unchecked Sendable {
 		try await client.send(event: .updateSession(session))
 	}
 
+	/// Update the speed parameter of the current session
+	public func setSpeed(_ speed: Double) async throws {
+		try await updateSession { session in
+			session.speed = speed
+		}
+	}
+
 	/// Send a client event to the server.
 	/// > Warning: This function is intended for advanced use cases. Use the other functions to send messages and audio data.
 	public func send(event: ClientEvent) async throws {
@@ -167,6 +174,25 @@ public final class Conversation: @unchecked Sendable {
 
 		try await send(event: .createConversationItem(Item(message: Item.Message(id: String(randomLength: 32), from: role, content: [.input_text(text)]))))
 		try await send(event: .createResponse(response))
+	}
+
+	/// Send a text message with a specified speed and wait for a response.
+	/// > Note: Calling this function will automatically call `interruptSpeech` if the model is currently speaking.
+	public func send(from role: Item.ItemRole, text: String, speed: Double, instructions: String = "", voice: Session.Voice? = nil) async throws {
+		if await handlingVoice { await interruptSpeech() }
+
+		// Use current session's voice if not specified
+		let currentSession = await session
+		let responseVoice = voice ?? currentSession?.voice ?? .alloy
+
+		let responseConfig = Response.Config(
+			instructions: instructions,
+			voice: responseVoice,
+			speed: speed
+		)
+
+		try await send(event: .createConversationItem(Item(message: Item.Message(id: String(randomLength: 32), from: role, content: [.input_text(text)]))))
+		try await send(event: .createResponse(responseConfig))
 	}
 
 	/// Send the response of a function call.

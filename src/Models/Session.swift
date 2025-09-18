@@ -300,6 +300,8 @@ public struct Session: Codable, Equatable, Sendable {
 	public var temperature: Double
 	/// Maximum number of output tokens.
 	public var maxOutputTokens: Int?
+	/// Speed of the TTS output. Range: 0.25 to 4.0, default: 1.0
+	public var speed: Double
 
 	public init(
 		id: String? = nil,
@@ -309,6 +311,7 @@ public struct Session: Codable, Equatable, Sendable {
 		voice: Voice = .alloy,
 		temperature: Double = 1,
 		maxOutputTokens: Int? = nil,
+		speed: Double = 1.0,
 		toolChoice: ToolChoice = .auto,
 		turnDetection: TurnDetection? = nil,
 		inputAudioFormat: AudioFormat = .pcm16,
@@ -326,6 +329,7 @@ public struct Session: Codable, Equatable, Sendable {
 		self.instructions = instructions
 		self.turnDetection = turnDetection
 		self.maxOutputTokens = maxOutputTokens
+		self.speed = speed
 		self.inputAudioFormat = inputAudioFormat
 		self.outputAudioFormat = outputAudioFormat
 		self.inputAudioTranscription = inputAudioTranscription
